@@ -72,9 +72,11 @@ public class BooksMain {
 
       tx.begin();
 
-      Publishers testPublisher = new Publishers("name", "123@gmail.com", "123-456-7890");
+      Publishers testPublisher = new Publishers("name2", "1235@gmail.com", "133-456-7890");
       pubs.add(testPublisher);
       jpaBooks.createEntity(pubs);
+
+      jpaBooks.printPublishers();
 
       tx.commit();
       LOGGER.fine("End of Transaction");
@@ -102,24 +104,28 @@ public class BooksMain {
       }
    } // End of createEntity member method
 
-   /**
-    * Think of this as a simple map from a String to an instance of auto_body_styles that has the
-    * same name, as the string that you pass in.  To create a new Cars instance, you need to pass
-    * in an instance of auto_body_styles to satisfy the foreign key constraint, not just a string
-    * representing the name of the style.
-    * @param name       The name of the autobody style that you are looking for.
-    * @return           The auto_body_styles instance corresponding to that style name.
-    */
-//   public auto_body_styles getStyle (String name) {
-//      // Run the native query that we defined in the auto_body_styles entity to find the right style.
-//      List<auto_body_styles> styles = this.entityManager.createNamedQuery("ReturnAutoBodyStyle",
-//              auto_body_styles.class).setParameter(1, name).getResultList();
-//      if (styles.size() == 0) {
-//         // Invalid style name passed in.
-//         return null;
-//      } else {
-//         // Return the style object that they asked for.
-//         return styles.get(0);
-//      }
-//   }// End of the getStyle method
+   public void printPublishers() {
+      for (Publishers p: getAllPublishers()) {
+         System.out.println(p);
+      }
+   }
+
+   public Publishers getPublisher (String name) {
+      List<Publishers> pubs = this.entityManager.createNamedQuery("ReturnPublisher",
+              Publishers.class).setParameter(1, name).getResultList();
+      if (pubs.size() == 0) {
+         // Invalid style name passed in.
+         return null;
+      } else {
+         // Return the style object that they asked for.
+         return pubs.get(0);
+      }
+   }
+
+   public List<Publishers> getAllPublishers() {
+      List<Publishers> pubs = this.entityManager.createNamedQuery("ReturnAllPublishers",
+              Publishers.class).getResultList();
+      if (pubs.size() == 0) return null;
+      else return pubs;
+   }
 } // End of CarClub class

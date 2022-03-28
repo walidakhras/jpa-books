@@ -17,6 +17,13 @@ import javax.persistence.FetchType;
         resultClass = Publishers.class
 )
 
+@NamedNativeQuery(
+        name = "ReturnAllPublishers",
+        query = "SELECT *" +
+                "FROM PUBLISHERS",
+        resultClass = Publishers.class
+)
+
 public class Publishers {
     @Id
     @Column(nullable = false, length = 80)
