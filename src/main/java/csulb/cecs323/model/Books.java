@@ -3,9 +3,6 @@ package csulb.cecs323.model;
 import javax.persistence.*;
 
 @Entity
-//@NamedNativeQuery(
-//
-//)
 public class Books {
     @Id
     @Column(nullable = false, length = 17)

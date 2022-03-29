@@ -6,6 +6,10 @@ import java.util.Set;
 @Entity
 public class Individual_Authors extends Authoring_Entities {
 
+    // Code citation:
+    // We utilized this site https://www.baeldung.com/jpa-many-to-many
+    // as a reference for the Many-to-Many code mapping for
+    // Individual authors and ad_hoc_teams
     @ManyToMany
     @JoinTable(
             name = "Ad_Hoc_Teams_Member",

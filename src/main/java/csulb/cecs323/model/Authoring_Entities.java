@@ -3,6 +3,20 @@ package csulb.cecs323.model;
 import javax.persistence.*;
 
 @Entity
+@NamedNativeQuery(
+        name = "ReturnAuthoringEntity",
+        query = "SELECT *" +
+                "FROM AUTHORING_ENTITIES" +
+                "WHERE email = ?",
+        resultClass = Authoring_Entities.class
+)
+
+@NamedNativeQuery(
+        name = "ReturnAllAuthoringEntities",
+        query = "SELECT *" +
+                "FROM AUTHORING_ENTITIES",
+        resultClass = Authoring_Entities.class
+)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "Authoring_Entity_Type")
 public abstract class Authoring_Entities {

@@ -66,17 +66,26 @@ public class BooksMain {
 
       BooksMain jpaBooks = new BooksMain(manager);
       ArrayList<Publishers> pubs = new ArrayList<Publishers>();
+      ArrayList<Writing_Groups> wrs = new ArrayList<Writing_Groups>();
+      ArrayList<Individual_Authors> authors = new ArrayList<Individual_Authors>();
 
       LOGGER.fine("Begin of Transaction");
       EntityTransaction tx = manager.getTransaction();
 
       tx.begin();
+      //This is just some test data
+//      Publishers testPublisher = new Publishers("name2", "1235@gmail.com", "133-456-7890");
+//      Writing_Groups wr = new Writing_Groups("writing@gmail.com", "name5", "headwriter", 2000);
+//      Individual_Authors ar = new Individual_Authors("walid@gmail.com", "Walid Akhras");
+      Ad_
 
-      Publishers testPublisher = new Publishers("name2", "1235@gmail.com", "133-456-7890");
-      pubs.add(testPublisher);
+//      wrs.add(wr);
+//      authors.add(ar);
+//      pubs.add(testPublisher);
+
       jpaBooks.createEntity(pubs);
-
-      jpaBooks.printPublishers();
+      jpaBooks.createEntity(wrs);
+      jpaBooks.createEntity(authors);
 
       tx.commit();
       LOGGER.fine("End of Transaction");
@@ -110,6 +119,10 @@ public class BooksMain {
       }
    }
 
+   public void printAuthoringEntities() {
+
+   }
+
    public Publishers getPublisher (String name) {
       List<Publishers> pubs = this.entityManager.createNamedQuery("ReturnPublisher",
               Publishers.class).setParameter(1, name).getResultList();
@@ -127,5 +140,19 @@ public class BooksMain {
               Publishers.class).getResultList();
       if (pubs.size() == 0) return null;
       else return pubs;
+   }
+
+   public List<Authoring_Entities> getAllAuthoringEntities() {
+      List<Authoring_Entities> auths = this.entityManager.createNamedQuery("ReturnAllAuthoringEntities",
+              Authoring_Entities.class).getResultList();
+      if (auths.size() == 0) return null;
+      else return auths;
+   }
+
+   public Authoring_Entities getAuthoringEntity (String email) {
+      List<Authoring_Entities> auths = this.entityManager.createNamedQuery("ReturnAuthoringEntity",
+              Authoring_Entities.class).setParameter(1, email).getResultList();
+      if (auths.size() == 0) return null;
+      else return auths.get(0);
    }
 } // End of CarClub class
