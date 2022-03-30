@@ -1,8 +1,24 @@
 package csulb.cecs323.model;
 
+import jdk.jfr.Name;
+
 import javax.persistence.*;
 
 @Entity
+@NamedNativeQuery(
+        name = "ReturnWritingGroup",
+        query = "SELECT *" +
+                "FROM WRITING_GROUPS" +
+                "WHERE email = ?",
+        resultClass = Writing_Groups.class
+)
+
+@NamedNativeQuery(
+        name = "ReturnAllWritingGroups",
+        query = "SELECT *" +
+                "FROM WRITING_GROUPS",
+        resultClass = Writing_Groups.class
+)
 public class Writing_Groups extends Authoring_Entities {
     @Column(length = 80)
     private String head_writer;

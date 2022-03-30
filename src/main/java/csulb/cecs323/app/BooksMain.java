@@ -68,6 +68,8 @@ public class BooksMain {
       ArrayList<Publishers> pubs = new ArrayList<Publishers>();
       ArrayList<Writing_Groups> wrs = new ArrayList<Writing_Groups>();
       ArrayList<Individual_Authors> authors = new ArrayList<Individual_Authors>();
+      ArrayList<Ad_Hoc_Team> teams = new ArrayList<Ad_Hoc_Team>();
+
 
       LOGGER.fine("Begin of Transaction");
       EntityTransaction tx = manager.getTransaction();
@@ -77,15 +79,19 @@ public class BooksMain {
 //      Publishers testPublisher = new Publishers("name2", "1235@gmail.com", "133-456-7890");
 //      Writing_Groups wr = new Writing_Groups("writing@gmail.com", "name5", "headwriter", 2000);
 //      Individual_Authors ar = new Individual_Authors("walid@gmail.com", "Walid Akhras");
-      Ad_
+      Individual_Authors ar2 = new Individual_Authors("mail.com", "kanye west");
+      Ad_Hoc_Team exampleTeam = new Ad_Hoc_Team("adhocemail@gmail.com", "123-4444-4444");
+      exampleTeam.addAuthorToTeam(ar2);
 
 //      wrs.add(wr);
 //      authors.add(ar);
 //      pubs.add(testPublisher);
+      teams.add(exampleTeam);
 
       jpaBooks.createEntity(pubs);
       jpaBooks.createEntity(wrs);
       jpaBooks.createEntity(authors);
+      jpaBooks.createEntity(teams);
 
       tx.commit();
       LOGGER.fine("End of Transaction");
@@ -126,13 +132,8 @@ public class BooksMain {
    public Publishers getPublisher (String name) {
       List<Publishers> pubs = this.entityManager.createNamedQuery("ReturnPublisher",
               Publishers.class).setParameter(1, name).getResultList();
-      if (pubs.size() == 0) {
-         // Invalid style name passed in.
-         return null;
-      } else {
-         // Return the style object that they asked for.
-         return pubs.get(0);
-      }
+      if (pubs.size() == 0) return null;
+      else return pubs.get(0);
    }
 
    public List<Publishers> getAllPublishers() {
@@ -155,4 +156,6 @@ public class BooksMain {
       if (auths.size() == 0) return null;
       else return auths.get(0);
    }
+
+
 } // End of CarClub class

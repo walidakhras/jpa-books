@@ -3,6 +3,20 @@ package csulb.cecs323.model;
 import javax.persistence.*;
 
 @Entity
+@NamedNativeQuery(
+        name = "ReturnBook",
+        query = "SELECT *" +
+                "FROM BOOKS" +
+                "WHERE ISBN = ?",
+        resultClass = Books.class
+)
+
+@NamedNativeQuery(
+        name = "ReturnAllBooks",
+        query = "SELECT *" +
+                "FROM WRITING_GROUPS",
+        resultClass = Books.class
+)
 public class Books {
     @Id
     @Column(nullable = false, length = 17)
