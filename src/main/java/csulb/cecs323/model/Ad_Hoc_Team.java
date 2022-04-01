@@ -39,4 +39,9 @@ public class Ad_Hoc_Team extends Authoring_Entities {
         authors.add(author);
         author.getTeams().add(this);
     }
+
+    @Override
+    public String toString() {
+        return "Team Name: " + getName() + " Team Email: " + getEmail();
+    }
 }

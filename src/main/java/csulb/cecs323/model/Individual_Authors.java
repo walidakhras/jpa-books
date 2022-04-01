@@ -43,4 +43,9 @@ public class Individual_Authors extends Authoring_Entities {
     public Set<Ad_Hoc_Team> getTeams() {
         return teams;
     }
+
+    @Override
+    public String toString() {
+        return "Author name: " + getName() + " Author email: " + getEmail();
+    }
 }

@@ -49,4 +49,9 @@ public abstract class Authoring_Entities {
     public void setName(String name) {
         this.name = name;
     }
+
+//    @Override
+//    public String toString() {
+//        return "Authoring Entity Name: " + name + " Authoring Entity Email: " + email;
+//    }
 }

@@ -19,7 +19,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Logger;
@@ -79,14 +81,14 @@ public class BooksMain {
 //      Publishers testPublisher = new Publishers("name2", "1235@gmail.com", "133-456-7890");
 //      Writing_Groups wr = new Writing_Groups("writing@gmail.com", "name5", "headwriter", 2000);
 //      Individual_Authors ar = new Individual_Authors("walid@gmail.com", "Walid Akhras");
-      Individual_Authors ar2 = new Individual_Authors("mail.com", "kanye west");
-      Ad_Hoc_Team exampleTeam = new Ad_Hoc_Team("adhocemail@gmail.com", "123-4444-4444");
-      exampleTeam.addAuthorToTeam(ar2);
+//      Individual_Authors ar2 = new Individual_Authors("mail.com", "kanye west");
+//      Ad_Hoc_Team exampleTeam = new Ad_Hoc_Team("adhocemail@gmail.com", "123-4444-4444");
+//      exampleTeam.addAuthorToTeam(ar2);
 
 //      wrs.add(wr);
 //      authors.add(ar);
 //      pubs.add(testPublisher);
-      teams.add(exampleTeam);
+//      teams.add(exampleTeam);
 
       jpaBooks.createEntity(pubs);
       jpaBooks.createEntity(wrs);
@@ -96,7 +98,100 @@ public class BooksMain {
       tx.commit();
       LOGGER.fine("End of Transaction");
 
-   } // End of the main method
+      boolean continueMenu = true;
+      while (continueMenu) {
+         String mainMenu = "1. Add a new object to the database" + '\n' +
+                 "2. List Info about a Specific Object" + '\n' +
+                 "3. Delete a book" + '\n' +
+                 "4. Update an existing book" + '\n' +
+                 "5. List primary keys";
+         int userResult = jpaBooks.printMenu(1, 5, mainMenu);
+         switch (userResult) {
+            case 1:
+               String menuOne = "1. Add a new writing group" + '\n' +
+                       "2. Add a new individual author" + '\n' +
+                       "3. Add a new Ad Hoc Team" + '\n' +
+                       "4. Add a new individual author to an Ad Hoc Team" + '\n' +
+                       "5. Add a new publisher" + '\n' +
+                       "6. Add a new book";
+               int resultOne = jpaBooks.printMenu(1, 6, menuOne);
+               switch (resultOne) {
+                  case 1:
+                     jpaBooks.validateGroup(tx);
+//                     wrs.add(jpaBooks.validateGroup());
+//                     tx.begin();
+//                     jpaBooks.createEntity(wrs);
+//                     tx.commit();
+//                     wrs.clear();
+
+                     jpaBooks.printAuthoringEntities();
+                     break;
+                  case 2:
+                     break;
+               }
+               break;
+            case 2:
+               System.out.println("2!");
+               break;
+            case 3:
+               System.out.println("3!");
+               break;
+            case 4:
+               System.out.println("4!");
+               break;
+            case 5:
+               System.out.println("5!");
+               break;
+         } // End switch
+      } // End loop
+   } // End main
+
+   public Writing_Groups validateGroup(EntityTransaction tx) {
+      boolean validate = true;
+      Writing_Groups group = null;
+      Scanner in = new Scanner(System.in);
+      while(validate) {
+         System.out.println("Enter writing group name");
+         String name = in.nextLine();
+
+         System.out.println("Enter writing group email");
+         String email = in.nextLine();
+
+         System.out.println("Enter the writing group head writer name");
+         String headWriter = in.nextLine();
+
+         System.out.println("Enter the writing group year formed");
+         int yearFormed = in.nextInt();
+
+         try {
+            group = new Writing_Groups(email, name, headWriter, yearFormed);
+            tx.begin();
+            this.entityManager.persist(group);
+            tx.commit();
+            validate = false;
+         } catch (Exception e) {
+            System.out.println("A writing group already exists with this email!");
+            in.next();
+         }
+      }
+      return group;
+   } // End validateGroup
+
+
+   public int printMenu(int lower, int upper, String menu) {
+      Scanner in = new Scanner(System.in);
+      int res = 0;
+      while (res < lower || res > upper) {
+         try {
+            System.out.println(menu);
+            res = in.nextInt();
+         } catch(InputMismatchException e) {
+            System.out.println("Please enter valid input!");
+            in.next();
+         }
+      }
+      return res;
+   }
 
    /**
     * Create and persist a list of objects to the database.
@@ -126,7 +221,9 @@ public class BooksMain {
    }
 
    public void printAuthoringEntities() {
-
+      for (Authoring_Entities auth: getAllAuthoringEntities()) {
+         System.out.println(auth);
+      }
    }
 
    public Publishers getPublisher (String name) {
@@ -158,4 +255,4 @@ public class BooksMain {
    }
 
 
-} // End of CarClub class
+}

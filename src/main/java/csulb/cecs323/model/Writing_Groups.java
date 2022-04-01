@@ -55,4 +55,9 @@ public class Writing_Groups extends Authoring_Entities {
         this.year_formed = year_formed;
     }
 
+    @Override
+    public String toString() {
+        return "Head Writer: " + head_writer + " Year Formed: " + year_formed;
+    }
+
 }
