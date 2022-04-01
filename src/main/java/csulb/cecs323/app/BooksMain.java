@@ -118,17 +118,21 @@ public class BooksMain {
                switch (resultOne) {
                   case 1:
                      jpaBooks.validateGroup(tx);
-//                     wrs.add(jpaBooks.validateGroup());
-//                     tx.begin();
-//                     jpaBooks.createEntity(wrs);
-//                     tx.commit();
-//                     wrs.clear();
-
                      jpaBooks.printAuthoringEntities();
                      break;
                   case 2:
+                     jpaBooks.validateAuthor(tx);
+                     jpaBooks.printAuthoringEntities();
                      break;
-               }
+                  case 3:
+                     break;
+                  case 4:
+                     break;
+                  case 5:
+                     break;
+                  case 6:
+                     break;
+               } // End Option 1 Switch
                break;
             case 2:
                System.out.println("2!");
@@ -145,6 +149,30 @@ public class BooksMain {
          } // End switch
       } // End loop
    } // End main
+
+   public void validateAuthor(EntityTransaction tx) {
+      boolean validate = true;
+      Individual_Authors author = null;
+      Scanner in = new Scanner(System.in);
+      while(validate) {
+         System.out.println("Enter the author's name: ");
+         String name = in.nextLine();
+
+         System.out.println("Enter the author's email: ");
+         String email = in.next();
+         try {
+            author = new Individual_Authors(email, name);
+            tx.begin();
+            this.entityManager.persist(author);
+            tx.commit();
+            validate = false;
+         } catch (Exception e) {
+            System.out.println("An author already exists with this email!" + '\n' +
+                    "Please enter a new author.");
+            in.nextLine();
+         }
+      }
+   } // End of validateAuthor
 
    public Writing_Groups validateGroup(EntityTransaction tx) {
       boolean validate = true;
@@ -170,8 +198,9 @@ public class BooksMain {
             tx.commit();
             validate = false;
          } catch (Exception e) {
-            System.out.println("A writing group already exists with this email!");
-            in.next();
+            System.out.println("A writing group already exists with this email!" + '\n' +
+                               "Please enter a new writing group.");
+            in.nextLine();
          }
       }
       return group;
