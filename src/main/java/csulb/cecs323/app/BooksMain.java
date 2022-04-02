@@ -14,6 +14,8 @@ package csulb.cecs323.app;
 
 // Import all of the entity classes that we have written for this application.
 import csulb.cecs323.model.*;
+import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
+import org.eclipse.persistence.exceptions.DatabaseException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -67,10 +69,13 @@ public class BooksMain {
       EntityManager manager = factory.createEntityManager();
 
       BooksMain jpaBooks = new BooksMain(manager);
+
       ArrayList<Publishers> pubs = new ArrayList<Publishers>();
-      ArrayList<Writing_Groups> wrs = new ArrayList<Writing_Groups>();
+      ArrayList<Writing_Groups> groups = new ArrayList<Writing_Groups>();
       ArrayList<Individual_Authors> authors = new ArrayList<Individual_Authors>();
       ArrayList<Ad_Hoc_Team> teams = new ArrayList<Ad_Hoc_Team>();
+      ArrayList<Books> books = new ArrayList<Books>();
+
 
 
       LOGGER.fine("Begin of Transaction");
@@ -91,7 +96,7 @@ public class BooksMain {
 //      teams.add(exampleTeam);
 
       jpaBooks.createEntity(pubs);
-      jpaBooks.createEntity(wrs);
+      jpaBooks.createEntity(groups);
       jpaBooks.createEntity(authors);
       jpaBooks.createEntity(teams);
 
@@ -99,6 +104,7 @@ public class BooksMain {
       LOGGER.fine("End of Transaction");
 
       boolean continueMenu = true;
+      Scanner in = new Scanner(System.in);
       while (continueMenu) {
          String mainMenu = "1. Add a new object to the database" + '\n' +
                  "2. List Info about a Specific Object" + '\n' +
@@ -125,6 +131,8 @@ public class BooksMain {
                      jpaBooks.printAuthoringEntities();
                      break;
                   case 3:
+                     jpaBooks.validateTeam(tx, in);
+                     jpaBooks.printAuthoringEntities();
                      break;
                   case 4:
                      break;
@@ -150,9 +158,38 @@ public class BooksMain {
       } // End loop
    } // End main
 
+   public <E> boolean persistGenericObject(E object, EntityTransaction tx) {
+      try {
+         tx.begin();
+         this.entityManager.persist(object);
+         tx.commit();
+      } catch (Exception e) {
+         return false;
+      }
+      return true;
+   }
+
+
+   public void validateTeam(EntityTransaction tx, Scanner in) {
+      Ad_Hoc_Team team;
+      boolean validate = true;
+
+      while(validate) {
+         System.out.println("Enter team name: ");
+         String name = in.nextLine();
+
+         System.out.println("Enter the author's email");
+         String email = in.nextLine();
+         team = new Ad_Hoc_Team(email, name);
+         if (persistGenericObject(team, tx)) validate = false;
+         else System.out.println("An ad hoc team with this email already exists!" + '\n' +
+                                 "Please try again!");
+      }
+   }
+
    public void validateAuthor(EntityTransaction tx) {
       boolean validate = true;
-      Individual_Authors author = null;
+      Individual_Authors author;
       Scanner in = new Scanner(System.in);
       while(validate) {
          System.out.println("Enter the author's name: ");
@@ -174,9 +211,9 @@ public class BooksMain {
       }
    } // End of validateAuthor
 
-   public Writing_Groups validateGroup(EntityTransaction tx) {
+   public void validateGroup(EntityTransaction tx) {
       boolean validate = true;
-      Writing_Groups group = null;
+      Writing_Groups group;
       Scanner in = new Scanner(System.in);
       while(validate) {
          System.out.println("Enter writing group name");
@@ -203,7 +240,6 @@ public class BooksMain {
             in.nextLine();
          }
       }
-      return group;
    } // End validateGroup
 
 
