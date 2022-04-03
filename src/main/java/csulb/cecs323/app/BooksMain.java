@@ -174,7 +174,18 @@ public class BooksMain {
       return true;
    }
 
-   public void deleteBook() {
+   public void deleteBook(Scanner in) {
+      System.out.println("Delete a book by: " + '\n' +
+              "1. ISBN " + '\n' +
+              "2. Title and Publisher Name" + '\n' +
+              "3. Title and Authoring Entity");
+      int userRes = in.nextInt();
+      switch(userRes) {
+         case 1:
+
+      }
+
+
 
    }
 
