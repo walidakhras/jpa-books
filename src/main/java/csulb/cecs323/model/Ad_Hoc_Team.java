@@ -8,15 +8,16 @@ import java.util.Set;
 @NamedNativeQuery(
         name = "ReturnAdHocTeam",
         query = "SELECT *" +
-                "FROM AD_HOC_TEAM" +
-                "WHERE email = ?",
+                "FROM AUTHORING_ENTITIES " +
+                "WHERE email = ? AND authoring_entity_type = 'Ad_Hoc_Team'",
         resultClass = Ad_Hoc_Team.class
 )
 
 @NamedNativeQuery(
         name = "ReturnAllAdHocTeams",
         query = "SELECT *" +
-                "FROM AD_HOC_TEAM",
+                "FROM AUTHORING_ENTITIES " +
+                "WHERE authoring_entity_type = ?",
         resultClass = Ad_Hoc_Team.class
 )
 public class Ad_Hoc_Team extends Authoring_Entities {
@@ -35,7 +36,7 @@ public class Ad_Hoc_Team extends Authoring_Entities {
     // Individual authors and ad hoc teams from this article
     // https://www.infoworld.com/article/3373652/java-persistence-with-jpa-and-hibernate-part-1-entities-and-relationships.html
 
-    public void addAuthorToTeam(Individual_Authors author) {
+    public void addAuthorToAdTeam(Individual_Authors author) {
         authors.add(author);
         author.getTeams().add(this);
     }

@@ -6,7 +6,7 @@ import javax.persistence.*;
 @NamedNativeQuery(
         name = "ReturnBook",
         query = "SELECT *" +
-                "FROM BOOKS" +
+                "FROM BOOKS " +
                 "WHERE ISBN = ?",
         resultClass = Books.class
 )

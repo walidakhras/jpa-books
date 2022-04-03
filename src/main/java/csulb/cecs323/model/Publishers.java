@@ -12,7 +12,7 @@ import javax.persistence.FetchType;
 @NamedNativeQuery(
         name = "ReturnPublisher",
         query = "SELECT *" +
-                "FROM PUBLISHERS" +
+                "FROM PUBLISHERS " +
                 "WHERE name = ?",
         resultClass = Publishers.class
 )

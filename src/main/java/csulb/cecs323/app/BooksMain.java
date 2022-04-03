@@ -135,10 +135,15 @@ public class BooksMain {
                      jpaBooks.printAuthoringEntities();
                      break;
                   case 4:
+                     jpaBooks.addAuthorToTeam(in, tx);
                      break;
                   case 5:
+                     jpaBooks.validatePublisher(tx, in);
+                     jpaBooks.printPublishers();
                      break;
                   case 6:
+                     jpaBooks.validateBook(tx, in);
+                     jpaBooks.printBooks();
                      break;
                } // End Option 1 Switch
                break;
@@ -167,6 +172,83 @@ public class BooksMain {
          return false;
       }
       return true;
+   }
+
+   public void deleteBook() {
+
+   }
+
+   // Needs validation
+   public void addAuthorToTeam(Scanner in, EntityTransaction tx) {
+      printTeams();
+      System.out.println("Please enter the email of the team you want to add the author to");
+      String email = in.nextLine();
+      Ad_Hoc_Team team = getAdHocTeam(email);
+
+      System.out.println("Enter author name");
+      String authName = in.nextLine();
+
+      System.out.println("Enter author email");
+      String authEmail = in.nextLine();
+
+      Individual_Authors newAuthor = new Individual_Authors(authEmail, authName);
+      tx.begin();
+      team.addAuthorToAdTeam(newAuthor);
+      tx.commit();
+   }
+
+   public void validateBook(EntityTransaction tx, Scanner in) {
+      Books book;
+      boolean validate = true;
+
+      while(validate) {
+         System.out.println("Enter the ISBN of the book");
+         String isbn = in.nextLine();
+
+         System.out.println("Enter the title of the book");
+         String title = in.nextLine();
+
+         System.out.println("Enter the year published");
+         int yearPublished = in.nextInt();
+         in.nextLine();
+
+         printAuthoringEntities();
+         System.out.println("Enter the email of the authoring entity you wish to associate this book with");
+         String authEmail = in.nextLine();
+         Authoring_Entities auth = getAuthoringEntity(authEmail);
+         System.out.println("Test");
+         printPublishers();
+         System.out.println("Enter the name of the publisher you wish to associate this book with");
+         String pubName = in.nextLine();
+         Publishers pub = getPublisher(pubName);
+
+         book = new Books(isbn, title, yearPublished, auth, pub);
+         if (persistGenericObject(book, tx)) validate = false;
+         else System.out.println("Error! A book already exists with this information");
+      }
+   }
+
+   public void validatePublisher(EntityTransaction tx, Scanner in) {
+      Publishers pub;
+      boolean validate = true;
+
+      while(validate) {
+         printPublishers();
+         System.out.println("Enter the name of the publisher");
+         String name = in.nextLine();
+
+         System.out.println("Enter the email of the publisher");
+         String email = in.nextLine();
+
+         System.out.println("Enter the name of the phone number");
+         String phone = in.nextLine();
+
+         pub = new Publishers(name, email, phone);
+         if (persistGenericObject(pub, tx)) validate = false;
+         else System.out.println("A publisher with this info already exists!" + '\n' +
+                 "All values must be unique. Please refer to the existing authors" + '\n' +
+                 "below and enter unique values");
+      }
    }
 
 
@@ -258,6 +340,18 @@ public class BooksMain {
       return res;
    }
 
+   public void printTeams() {
+      for (Ad_Hoc_Team team: getAllAdHocTeams()) {
+         System.out.println(team);
+      }
+   }
+
+   public void printBooks() {
+      for (Books book: getAllBooks()) {
+         System.out.println(book);
+      }
+   }
+
    /**
     * Create and persist a list of objects to the database.
     * @param entities   The list of entities to persist.  These can be any object that has been
@@ -317,6 +411,35 @@ public class BooksMain {
               Authoring_Entities.class).setParameter(1, email).getResultList();
       if (auths.size() == 0) return null;
       else return auths.get(0);
+   }
+
+   public List<Ad_Hoc_Team> getAllAdHocTeams() {
+      List<Ad_Hoc_Team> teams = this.entityManager.createNamedQuery("ReturnAllAdHocTeams",
+              Ad_Hoc_Team.class).setParameter(1, "Ad_Hoc_Team").getResultList();
+
+      if (teams.size() == 0) return null;
+      else return teams;
+   }
+
+   public Ad_Hoc_Team getAdHocTeam (String email) {
+      List<Ad_Hoc_Team> team = this.entityManager.createNamedQuery("ReturnAdHocTeam",
+              Ad_Hoc_Team.class).setParameter(1, email).getResultList();
+      if (team.size() == 0) return null;
+      else return team.get(0);
+   }
+
+   public List<Books> getAllBooks() {
+      List<Books> books = this.entityManager.createNamedQuery("ReturnAllBooks",
+              Books.class).getResultList();
+      if (books.size() == 0) return null;
+      else return books;
+   }
+
+   public List<Writing_Groups> getAllGroups() {
+      List<Writing_Groups> groups = this.entityManager.createNamedQuery("ReturnAllWritingGroups",
+              Writing_Groups.class).setParameter(1, "Writing_Groups").getResultList();
+      if (groups.size() == 0) return null;
+      else return groups;
    }
 
 

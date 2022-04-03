@@ -8,15 +8,16 @@ import javax.persistence.*;
 @NamedNativeQuery(
         name = "ReturnWritingGroup",
         query = "SELECT *" +
-                "FROM WRITING_GROUPS" +
-                "WHERE email = ?",
+                "FROM AUTHORING_ENTITIES " +
+                "WHERE email = ? AND authoring_entity_type = 'Writing_Groups'",
         resultClass = Writing_Groups.class
 )
 
 @NamedNativeQuery(
         name = "ReturnAllWritingGroups",
         query = "SELECT *" +
-                "FROM WRITING_GROUPS",
+                "FROM AUTHORING_ENTITIES " +
+                "WHERE authoring_entity_type = ?",
         resultClass = Writing_Groups.class
 )
 public class Writing_Groups extends Authoring_Entities {
@@ -57,7 +58,7 @@ public class Writing_Groups extends Authoring_Entities {
 
     @Override
     public String toString() {
-        return "Head Writer: " + head_writer + " Year Formed: " + year_formed;
+        return "Team name: " + getName() + " Team Email: " + getEmail() + " Head Writer: " + head_writer + " Year Formed: " + year_formed;
     }
 
 }
