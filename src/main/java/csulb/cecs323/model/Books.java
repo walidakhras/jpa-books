@@ -5,11 +5,28 @@ import javax.persistence.*;
 @Entity
 @NamedNativeQuery(
         name = "ReturnBook",
-        query = "SELECT *" +
+        query = "SELECT * " +
                 "FROM BOOKS " +
                 "WHERE ISBN = ?",
         resultClass = Books.class
 )
+
+@NamedNativeQuery(
+        name = "ReturnBookByPublisher",
+        query = "SELECT * " +
+                "FROM BOOKS " +
+                "WHERE title = ? AND publisher = ?",
+        resultClass = Books.class
+)
+
+@NamedNativeQuery(
+        name = "ReturnBookByAuthoringEntity",
+        query = "SELECT * " +
+                "FROM BOOKS " +
+                "WHERE title = ? AND authoring_entity = ?",
+        resultClass = Books.class
+)
+
 
 @NamedNativeQuery(
         name = "ReturnAllBooks",

@@ -180,13 +180,14 @@ public class BooksMain {
               "2. Title and Publisher Name" + '\n' +
               "3. Title and Authoring Entity");
       String title;
+      Books book;
       int userRes = in.nextInt();
       in.nextLine();
       switch(userRes) {
          case 1:
             System.out.println("Enter the book's ISBN");
             String isbn = in.nextLine();
-            Books book = getBook(isbn);
+            book = getBook(isbn);
             tx.begin();
             entityManager.remove(book);
             tx.commit();
@@ -197,6 +198,13 @@ public class BooksMain {
 
             System.out.println("Enter the publisher name");
             String name = in.nextLine();
+            Publishers pub = getPublisher(name);
+
+            book = entityManager.createNamedQuery("ReturnBookByPublisher", Books.class).
+                    setParameter(1, title).setParameter(2, pub).getResultList().get(0);
+            tx.begin();
+            entityManager.remove(book);
+            tx.commit();
             break;
          case 3:
             System.out.println("Enter the title of the book");
