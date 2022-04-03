@@ -151,7 +151,7 @@ public class BooksMain {
                System.out.println("2!");
                break;
             case 3:
-               System.out.println("3!");
+               jpaBooks.deleteBook(tx, in);
                break;
             case 4:
                System.out.println("4!");
@@ -174,16 +174,39 @@ public class BooksMain {
       return true;
    }
 
-   public void deleteBook(Scanner in) {
+   public void deleteBook(EntityTransaction tx, Scanner in) {
       System.out.println("Delete a book by: " + '\n' +
               "1. ISBN " + '\n' +
               "2. Title and Publisher Name" + '\n' +
               "3. Title and Authoring Entity");
+      String title;
       int userRes = in.nextInt();
+      in.nextLine();
       switch(userRes) {
          case 1:
+            System.out.println("Enter the book's ISBN");
+            String isbn = in.nextLine();
+            Books book = getBook(isbn);
+            tx.begin();
+            entityManager.remove(book);
+            tx.commit();
+            break;
+         case 2:
+            System.out.println("Enter the title of the book");
+            title = in.nextLine();
 
+            System.out.println("Enter the publisher name");
+            String name = in.nextLine();
+            break;
+         case 3:
+            System.out.println("Enter the title of the book");
+            title = in.nextLine();
+
+            System.out.println("Enter the email of the authoring entity");
+            String email = in.nextLine();
+            break;
       }
+
 
 
 
@@ -444,6 +467,13 @@ public class BooksMain {
               Books.class).getResultList();
       if (books.size() == 0) return null;
       else return books;
+   }
+
+   public Books getBook (String isbn) {
+      List<Books> book = this.entityManager.createNamedQuery("ReturnBook",
+              Books.class).setParameter(1, isbn).getResultList();
+      if (book.size() == 0) return null;
+      else return book.get(0);
    }
 
    public List<Writing_Groups> getAllGroups() {
