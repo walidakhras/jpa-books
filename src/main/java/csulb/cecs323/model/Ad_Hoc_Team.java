@@ -35,6 +35,8 @@ public class Ad_Hoc_Team extends Authoring_Entities {
     // We got the strategy for adding rows to the junction table between
     // Individual authors and ad hoc teams from this article
     // https://www.infoworld.com/article/3373652/java-persistence-with-jpa-and-hibernate-part-1-entities-and-relationships.html
+    // The name of the junction table between these two classes is called
+    // "ad_hoc_teams_members" and is specified in the individual authors class.
 
     public void addAuthorToAdTeam(Individual_Authors author) {
         authors.add(author);

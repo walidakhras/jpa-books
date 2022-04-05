@@ -15,7 +15,7 @@ import javax.persistence.*;
         name = "ReturnBookByPublisher",
         query = "SELECT * " +
                 "FROM BOOKS " +
-                "WHERE title = ? AND publisher = ?",
+                "WHERE title = ? AND name = ?",
         resultClass = Books.class
 )
 
@@ -23,7 +23,7 @@ import javax.persistence.*;
         name = "ReturnBookByAuthoringEntity",
         query = "SELECT * " +
                 "FROM BOOKS " +
-                "WHERE title = ? AND authoring_entity = ?",
+                "WHERE title = ? AND authoring_entities = ?",
         resultClass = Books.class
 )
 
@@ -31,7 +31,7 @@ import javax.persistence.*;
 @NamedNativeQuery(
         name = "ReturnAllBooks",
         query = "SELECT *" +
-                "FROM WRITING_GROUPS",
+                "FROM BOOKS",
         resultClass = Books.class
 )
 public class Books {

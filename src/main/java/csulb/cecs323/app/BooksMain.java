@@ -151,7 +151,12 @@ public class BooksMain {
                System.out.println("2!");
                break;
             case 3:
-               jpaBooks.deleteBook(tx, in);
+               String menuTwo = "Delete a book by: " + '\n' +
+                       "1. ISBN " + '\n' +
+                       "2. Title and Publisher Name" + '\n' +
+                       "3. Title and Authoring Entity";
+               int resultTwo = jpaBooks.printMenu(1, 3, menuTwo);
+               jpaBooks.deleteBook(tx, in, resultTwo);
                break;
             case 4:
                System.out.println("4!");
@@ -174,23 +179,15 @@ public class BooksMain {
       return true;
    }
 
-   public void deleteBook(EntityTransaction tx, Scanner in) {
-      System.out.println("Delete a book by: " + '\n' +
-              "1. ISBN " + '\n' +
-              "2. Title and Publisher Name" + '\n' +
-              "3. Title and Authoring Entity");
+   // Functional but needs error validation
+   public void deleteBook(EntityTransaction tx, Scanner in, int userRes) {
       String title;
-      Books book;
-      int userRes = in.nextInt();
-      in.nextLine();
+      Books book = null;
       switch(userRes) {
          case 1:
             System.out.println("Enter the book's ISBN");
             String isbn = in.nextLine();
             book = getBook(isbn);
-            tx.begin();
-            entityManager.remove(book);
-            tx.commit();
             break;
          case 2:
             System.out.println("Enter the title of the book");
@@ -198,13 +195,9 @@ public class BooksMain {
 
             System.out.println("Enter the publisher name");
             String name = in.nextLine();
-            Publishers pub = getPublisher(name);
 
             book = entityManager.createNamedQuery("ReturnBookByPublisher", Books.class).
-                    setParameter(1, title).setParameter(2, pub).getResultList().get(0);
-            tx.begin();
-            entityManager.remove(book);
-            tx.commit();
+                    setParameter(1, title).setParameter(2, name).getResultList().get(0);
             break;
          case 3:
             System.out.println("Enter the title of the book");
@@ -212,19 +205,25 @@ public class BooksMain {
 
             System.out.println("Enter the email of the authoring entity");
             String email = in.nextLine();
+            book = entityManager.createNamedQuery("ReturnBookByAuthoringEntity", Books.class)
+                    .setParameter(1, title).setParameter(2, email).getResultList().get(0);
             break;
       }
-
-
-
-
+      tx.begin();
+      entityManager.remove(book);
+      tx.commit();
    }
 
-   // Needs validation
+   // Functional but needs error validation
    public void addAuthorToTeam(Scanner in, EntityTransaction tx) {
       printTeams();
       System.out.println("Please enter the email of the team you want to add the author to");
       String email = in.nextLine();
+      try {
+
+      } catch (Exception e) {
+
+      }
       Ad_Hoc_Team team = getAdHocTeam(email);
 
       System.out.println("Enter author name");
@@ -321,17 +320,22 @@ public class BooksMain {
 
          System.out.println("Enter the author's email: ");
          String email = in.next();
-         try {
-            author = new Individual_Authors(email, name);
-            tx.begin();
-            this.entityManager.persist(author);
-            tx.commit();
-            validate = false;
-         } catch (Exception e) {
-            System.out.println("An author already exists with this email!" + '\n' +
-                    "Please enter a new author.");
-            in.nextLine();
-         }
+         author = new Individual_Authors(email, name);
+
+         if (persistGenericObject(author, tx)) validate = false;
+         System.out.println("An author already exists with this email!" + '\n' +
+                 "Please enter a new author.");
+//         try {
+//            author = new Individual_Authors(email, name);
+//            tx.begin();
+//            this.entityManager.persist(author);
+//            tx.commit();
+//            validate = false;
+//         } catch (Exception e) {
+//            System.out.println("An author already exists with this email!" + '\n' +
+//                    "Please enter a new author.");
+//            in.nextLine();
+//         }
       }
    } // End of validateAuthor
 
@@ -340,29 +344,23 @@ public class BooksMain {
       Writing_Groups group;
       Scanner in = new Scanner(System.in);
       while(validate) {
-         System.out.println("Enter writing group name");
+         System.out.println("Enter writing group name. (Max length 80 characters)");
          String name = in.nextLine();
 
-         System.out.println("Enter writing group email");
+         System.out.println("Enter writing group email. (Max length 30 characters)");
          String email = in.nextLine();
 
-         System.out.println("Enter the writing group head writer name");
+         System.out.println("Enter the writing group head writer name. (Max length 31 characters)");
          String headWriter = in.nextLine();
 
          System.out.println("Enter the writing group year formed");
          int yearFormed = in.nextInt();
+         in.nextLine();
 
-         try {
-            group = new Writing_Groups(email, name, headWriter, yearFormed);
-            tx.begin();
-            this.entityManager.persist(group);
-            tx.commit();
-            validate = false;
-         } catch (Exception e) {
-            System.out.println("A writing group already exists with this email!" + '\n' +
-                               "Please enter a new writing group.");
-            in.nextLine();
-         }
+         group = new Writing_Groups(email, name, headWriter, yearFormed);
+         if (persistGenericObject(group, tx)) validate = false;
+         System.out.println("Error occurred. Either an authoring already exists with this email" +
+                 " or you entered too many characters for the given lengths");
       }
    } // End validateGroup
 
@@ -416,12 +414,20 @@ public class BooksMain {
    } // End of createEntity member method
 
    public void printPublishers() {
+      if (getAllPublishers() == null) {
+         System.out.println("No publishers currently in the database.");
+         return;
+      }
       for (Publishers p: getAllPublishers()) {
          System.out.println(p);
       }
    }
 
    public void printAuthoringEntities() {
+      if (getAllAuthoringEntities() == null) {
+         System.out.println("No authoring entities currently in the database.");
+         return;
+      }
       for (Authoring_Entities auth: getAllAuthoringEntities()) {
          System.out.println(auth);
       }

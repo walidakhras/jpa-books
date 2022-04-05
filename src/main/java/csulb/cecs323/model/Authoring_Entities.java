@@ -50,8 +50,4 @@ public abstract class Authoring_Entities {
         this.name = name;
     }
 
-//    @Override
-//    public String toString() {
-//        return "Authoring Entity Name: " + name + " Authoring Entity Email: " + email;
-//    }
 }
