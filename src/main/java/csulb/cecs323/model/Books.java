@@ -27,7 +27,6 @@ import javax.persistence.*;
         resultClass = Books.class
 )
 
-
 @NamedNativeQuery(
         name = "ReturnAllBooks",
         query = "SELECT *" +

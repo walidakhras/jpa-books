@@ -34,7 +34,7 @@
 			<!-- best option during development of JPA entities is to drop the tables and create them:  drop-and-create-->
 			<!-- to create the tables:  create-tables -->
 			<!-- to do nothing (use what's in the DBMS):  none -->
-			<property name="javax.persistence.schema-generation.database.action" value="none" />
+			<property name="javax.persistence.schema-generation.database.action" value="drop-and-create" />
 			<property name="javax.persistence.schema-generation.create-source" value="metadata"/>
 			<property name="javax.persistence.schema-generation.drop-source" value="metadata"/>
 

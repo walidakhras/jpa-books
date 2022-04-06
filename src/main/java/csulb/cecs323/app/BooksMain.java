@@ -110,8 +110,9 @@ public class BooksMain {
                  "2. List Info about a Specific Object" + '\n' +
                  "3. Delete a book" + '\n' +
                  "4. Update an existing book" + '\n' +
-                 "5. List primary keys";
-         int userResult = jpaBooks.printMenu(1, 5, mainMenu);
+                 "5. List primary keys" + '\n' +
+                 "6. Exit";
+         int userResult = jpaBooks.printMenu(1, 6, mainMenu);
          switch (userResult) {
             case 1:
                String menuOne = "1. Add a new writing group" + '\n' +
@@ -123,11 +124,11 @@ public class BooksMain {
                int resultOne = jpaBooks.printMenu(1, 6, menuOne);
                switch (resultOne) {
                   case 1:
-                     jpaBooks.validateGroup(tx);
+                     jpaBooks.validateGroup(tx, in);
                      jpaBooks.printAuthoringEntities();
                      break;
                   case 2:
-                     jpaBooks.validateAuthor(tx);
+                     jpaBooks.validateAuthor(tx, in);
                      jpaBooks.printAuthoringEntities();
                      break;
                   case 3:
@@ -135,7 +136,7 @@ public class BooksMain {
                      jpaBooks.printAuthoringEntities();
                      break;
                   case 4:
-                     jpaBooks.addAuthorToTeam(in, tx);
+                     jpaBooks.addAuthorToTeam(tx, in);
                      break;
                   case 5:
                      jpaBooks.validatePublisher(tx, in);
@@ -143,7 +144,6 @@ public class BooksMain {
                      break;
                   case 6:
                      jpaBooks.validateBook(tx, in);
-                     jpaBooks.printBooks();
                      break;
                } // End Option 1 Switch
                break;
@@ -164,6 +164,10 @@ public class BooksMain {
             case 5:
                System.out.println("5!");
                break;
+            case 6:
+               System.out.println("Exiting");
+               continueMenu = false;
+               break;
          } // End switch
       } // End loop
    } // End main
@@ -181,6 +185,10 @@ public class BooksMain {
 
    // Functional but needs error validation
    public void deleteBook(EntityTransaction tx, Scanner in, int userRes) {
+      if (getAllBooks() == null) {
+         System.out.println("No books are currently in the database.");
+         return;
+      }
       String title;
       Books book = null;
       switch(userRes) {
@@ -214,135 +222,180 @@ public class BooksMain {
       tx.commit();
    }
 
-   // Functional but needs error validation
-   public void addAuthorToTeam(Scanner in, EntityTransaction tx) {
-      printTeams();
-      System.out.println("Please enter the email of the team you want to add the author to");
-      String email = in.nextLine();
-      try {
-
-      } catch (Exception e) {
-
+   // Properly validated
+   public void addAuthorToTeam(EntityTransaction tx, Scanner in) {
+      if (getAllAdHocTeams() == null) {
+         System.out.println("No ad hoc team currently exists." +
+                 " Please create one then try again");
+         return;
       }
-      Ad_Hoc_Team team = getAdHocTeam(email);
+      printTeams();
 
-      System.out.println("Enter author name");
-      String authName = in.nextLine();
+      boolean validate = true;
+      Ad_Hoc_Team team = null;
+      while(validate) {
+         System.out.println("Please enter the email of the team you want to add the author to.");
+         String email = in.nextLine();
 
-      System.out.println("Enter author email");
-      String authEmail = in.nextLine();
+         team = getAdHocTeam(email);
+         if (team == null) {
+            System.out.println("No ad hoc team exists with this information." +
+                    '\n' + "Please try again" + '\n');
+         }
+         else {
+            validate = false;
+         }
+      } // End while loop
 
-      Individual_Authors newAuthor = new Individual_Authors(authEmail, authName);
+      Individual_Authors newAuthor = validateAuthor(tx, in);
+
       tx.begin();
       team.addAuthorToAdTeam(newAuthor);
       tx.commit();
    }
 
+   //Needs validation
    public void validateBook(EntityTransaction tx, Scanner in) {
-      Books book;
-      boolean validate = true;
+      if (getAllAuthoringEntities() == null) {
+         System.out.println("A book needs an existing authoring entity to be associated with." +
+                 " Currently, there are no authoring entities in the database." +
+                 '\n' + "Please create one then try again.");
+         return;
+      }
 
-      while(validate) {
-         System.out.println("Enter the ISBN of the book");
+      if (getAllPublishers() == null) {
+         System.out.println("A book needs an existing publisher to be associated with." +
+                 " Currently, there are no publishers in the database." +
+                 '\n' + "Please create one then try again." + '\n');
+         return;
+      }
+
+      Books book;
+      boolean bookValidate = true;
+      Authoring_Entities auth = null;
+      Publishers pub = null;
+      while(bookValidate) {
+         System.out.println("Enter the ISBN of the book. (Max length of 17 characters)");
          String isbn = in.nextLine();
 
-         System.out.println("Enter the title of the book");
+         System.out.println("Enter the title of the book. (Max length of 80 characters)");
          String title = in.nextLine();
 
          System.out.println("Enter the year published");
          int yearPublished = in.nextInt();
-         in.nextLine();
+         in.next();
 
-         printAuthoringEntities();
-         System.out.println("Enter the email of the authoring entity you wish to associate this book with");
-         String authEmail = in.nextLine();
-         Authoring_Entities auth = getAuthoringEntity(authEmail);
-         System.out.println("Test");
-         printPublishers();
-         System.out.println("Enter the name of the publisher you wish to associate this book with");
-         String pubName = in.nextLine();
-         Publishers pub = getPublisher(pubName);
+         boolean authValidate = true;
+         while (authValidate) {
+            printAuthoringEntities();
+
+            System.out.println("Enter the email of the authoring entity you wish to associate this book with");
+            String authEmail = in.nextLine();
+
+            auth = getAuthoringEntity(authEmail);
+
+            if (auth == null) {
+               System.out.println("No team exists with this information." + '\n' +
+                       "Please try again." + '\n');
+            } else authValidate = false;
+         }
+
+         boolean pubValidate = true;
+         while (pubValidate) {
+            printPublishers();
+
+            System.out.println("Enter the name of the publisher you wish to associate this book with");
+            String pubName = in.nextLine();
+
+            pub = getPublisher(pubName);
+            if (pub == null) {
+               System.out.println("No publisher exists with this information." + '\n' +
+                       "Please try again." + '\n');
+            } else pubValidate = false;
+         }
 
          book = new Books(isbn, title, yearPublished, auth, pub);
-         if (persistGenericObject(book, tx)) validate = false;
-         else System.out.println("Error! A book already exists with this information");
+         if (persistGenericObject(book, tx)) {
+            bookValidate = false;
+         }
+         else System.out.println("Error occurred. Either a book already exists with this" +
+                 " information or you entered too many characters for the given lengths" + '\n' +
+                 "Please try again" + '\n');
       }
    }
 
+   // Properly validated
    public void validatePublisher(EntityTransaction tx, Scanner in) {
       Publishers pub;
       boolean validate = true;
 
       while(validate) {
          printPublishers();
-         System.out.println("Enter the name of the publisher");
+         System.out.println("Enter the name of the publisher. (Max length 80 characters)");
          String name = in.nextLine();
 
-         System.out.println("Enter the email of the publisher");
+         System.out.println("Enter the email of the publisher. (Max length 80 characters)");
          String email = in.nextLine();
 
-         System.out.println("Enter the name of the phone number");
+         System.out.println("Enter the name of the phone number. (Max length 24 characters)");
          String phone = in.nextLine();
 
          pub = new Publishers(name, email, phone);
          if (persistGenericObject(pub, tx)) validate = false;
-         else System.out.println("A publisher with this info already exists!" + '\n' +
-                 "All values must be unique. Please refer to the existing authors" + '\n' +
-                 "below and enter unique values");
+         else System.out.println("Error occurred. Either a Publisher already exists with" +
+                 " this information or you entered too many characters for the given lengths" + '\n' +
+                 "Please try again." + '\n');
       }
-   }
+   } // End validatePublisher
 
-
+   // Properly Validated
    public void validateTeam(EntityTransaction tx, Scanner in) {
       Ad_Hoc_Team team;
       boolean validate = true;
 
       while(validate) {
-         System.out.println("Enter team name: ");
+         System.out.println("Enter team name. (Max length 30 characters)");
          String name = in.nextLine();
 
-         System.out.println("Enter the author's email");
+         System.out.println("Enter the team's email. (Max length 31 characters)");
          String email = in.nextLine();
-         team = new Ad_Hoc_Team(email, name);
-         if (persistGenericObject(team, tx)) validate = false;
-         else System.out.println("An ad hoc team with this email already exists!" + '\n' +
-                                 "Please try again!");
-      }
-   }
 
-   public void validateAuthor(EntityTransaction tx) {
+         team = new Ad_Hoc_Team(email, name);
+         if (persistGenericObject(team, tx)) {
+            validate = false;
+         }
+         else {
+            System.out.println("Error occurred. Either an authoring already exists with this email" +
+                    " or you entered too many characters for the given lengths." + '\n' +
+                    "Please try again." + '\n');
+         }
+      } // End of while loop
+   } // End of validateTeam
+
+   // Properly Validated
+   public Individual_Authors validateAuthor(EntityTransaction tx, Scanner in) {
       boolean validate = true;
-      Individual_Authors author;
-      Scanner in = new Scanner(System.in);
+      Individual_Authors author = null;
       while(validate) {
-         System.out.println("Enter the author's name: ");
+         System.out.println("Enter the author's name. (Max length 30 characters)");
          String name = in.nextLine();
 
-         System.out.println("Enter the author's email: ");
-         String email = in.next();
+         System.out.println("Enter the author's email. (Max length 31 characters)");
+         String email = in.nextLine();
          author = new Individual_Authors(email, name);
 
          if (persistGenericObject(author, tx)) validate = false;
-         System.out.println("An author already exists with this email!" + '\n' +
-                 "Please enter a new author.");
-//         try {
-//            author = new Individual_Authors(email, name);
-//            tx.begin();
-//            this.entityManager.persist(author);
-//            tx.commit();
-//            validate = false;
-//         } catch (Exception e) {
-//            System.out.println("An author already exists with this email!" + '\n' +
-//                    "Please enter a new author.");
-//            in.nextLine();
-//         }
+         else System.out.println("Error occurred. Either an authoring already exists with this email" +
+                 " or you entered too many characters for the given lengths." + '\n' +
+                 "Please try again." + '\n');
       }
+      return author;
    } // End of validateAuthor
 
-   public void validateGroup(EntityTransaction tx) {
+   // Properly Validated
+   public void validateGroup(EntityTransaction tx, Scanner in) {
       boolean validate = true;
       Writing_Groups group;
-      Scanner in = new Scanner(System.in);
       while(validate) {
          System.out.println("Enter writing group name. (Max length 80 characters)");
          String name = in.nextLine();
@@ -359,8 +412,9 @@ public class BooksMain {
 
          group = new Writing_Groups(email, name, headWriter, yearFormed);
          if (persistGenericObject(group, tx)) validate = false;
-         System.out.println("Error occurred. Either an authoring already exists with this email" +
-                 " or you entered too many characters for the given lengths");
+         else System.out.println("Error occurred. Either an authoring already exists with this email" +
+                 " or you entered too many characters for the given lengths." + '\n' +
+                 "Please try again." + '\n');
       }
    } // End validateGroup
 
@@ -433,6 +487,7 @@ public class BooksMain {
       }
    }
 
+   // Getters for named native queries
    public Publishers getPublisher (String name) {
       List<Publishers> pubs = this.entityManager.createNamedQuery("ReturnPublisher",
               Publishers.class).setParameter(1, name).getResultList();
@@ -496,6 +551,4 @@ public class BooksMain {
       if (groups.size() == 0) return null;
       else return groups;
    }
-
-
 }

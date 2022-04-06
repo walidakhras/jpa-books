@@ -27,6 +27,9 @@ public abstract class Authoring_Entities {
     @Column(nullable = false, length = 31)
     private String name;
 
+    @Column(name = "Authoring_Entity_Type")
+    private String type;
+
     public Authoring_Entities() {}
 
     public Authoring_Entities(String email, String name) {
