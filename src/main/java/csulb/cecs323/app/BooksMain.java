@@ -99,6 +99,7 @@ public class BooksMain {
       jpaBooks.createEntity(groups);
       jpaBooks.createEntity(authors);
       jpaBooks.createEntity(teams);
+      jpaBooks.createEntity(books);
 
       tx.commit();
       LOGGER.fine("End of Transaction");
@@ -148,7 +149,21 @@ public class BooksMain {
                } // End Option 1 Switch
                break;
             case 2:
-               System.out.println("2!");
+               String objectMenu = "1. Publisher" + '\n' +
+                       "2. Book" + '\n' +
+                       "3. Writing Group";
+               int objectChoice = jpaBooks.printMenu(1,3, objectMenu);
+               switch (objectChoice) {
+                  case 1:
+                     jpaBooks.promptedPub();
+                     break;
+                  case 2:
+                     jpaBooks.promptedBook();
+                     break;
+                  case 3:
+                     jpaBooks.promptedWritingClub();
+                     break;
+               }
                break;
             case 3:
                String menuTwo = "Delete a book by: " + '\n' +
@@ -171,6 +186,42 @@ public class BooksMain {
          } // End switch
       } // End loop
    } // End main
+
+   //prompt methods
+   public void promptedPub(){
+      Scanner in = new Scanner(System.in);
+      System.out.println("Please enter the name of the Publisher: ");
+      String pubName = in.nextLine();
+      while(getPublisher(pubName) == null){
+         System.out.println("This Publisher does not exist, please enter an existing Publisher: ");
+         pubName = in.nextLine();
+      }
+      System.out.println("\n" + getPublisher(pubName) + "\n\n");
+   }
+
+   public void promptedBook(){
+      Scanner in = new Scanner(System.in);
+      System.out.println("Please enter the ISBN of the Book: ");
+      String bookISBN = in.nextLine();
+      while(getBook(bookISBN) == null){
+         System.out.println("This book does not exist, please enter an existing book's ISBN: ");
+         bookISBN = in.nextLine();
+      }
+      System.out.println("\n" + getBook(bookISBN) + "\n\n");
+
+   }
+
+   public void promptedWritingClub(){
+      Scanner in = new Scanner(System.in);
+      System.out.println("Please enter the email of the Writing Group: ");
+      String groupEmail = in.nextLine();
+      while(getGroup(groupEmail) == null){
+         System.out.println("This group does not exist, please enter an existing writing group: ");
+         groupEmail = in.nextLine();
+      }
+      System.out.println("\n" + getGroup(groupEmail) + "\n\n");
+   }
+
 
    public <E> boolean persistGenericObject(E object, EntityTransaction tx) {
       try {
@@ -195,6 +246,11 @@ public class BooksMain {
          case 1:
             System.out.println("Enter the book's ISBN");
             String isbn = in.nextLine();
+            if (getBook(isbn) == null)
+            {
+               System.out.println("Book not found.");
+               return;
+            }
             book = getBook(isbn);
             break;
          case 2:
@@ -206,6 +262,10 @@ public class BooksMain {
 
             book = entityManager.createNamedQuery("ReturnBookByPublisher", Books.class).
                     setParameter(1, title).setParameter(2, name).getResultList().get(0);
+            if (book == null) {
+               System.out.println("Book not found");
+               return;
+            }
             break;
          case 3:
             System.out.println("Enter the title of the book");
@@ -215,6 +275,10 @@ public class BooksMain {
             String email = in.nextLine();
             book = entityManager.createNamedQuery("ReturnBookByAuthoringEntity", Books.class)
                     .setParameter(1, title).setParameter(2, email).getResultList().get(0);
+            if (book == null) {
+               System.out.println("Book not found");
+               return;
+            }
             break;
       }
       tx.begin();
@@ -283,7 +347,7 @@ public class BooksMain {
 
          System.out.println("Enter the year published");
          int yearPublished = in.nextInt();
-         in.next();
+         in.nextLine();
 
          boolean authValidate = true;
          while (authValidate) {
@@ -550,5 +614,12 @@ public class BooksMain {
               Writing_Groups.class).setParameter(1, "Writing_Groups").getResultList();
       if (groups.size() == 0) return null;
       else return groups;
+   }
+
+   public Writing_Groups getGroup(String email){
+      List<Writing_Groups> groups = this.entityManager.createNamedQuery("ReturnWritingGroup",
+              Writing_Groups.class).setParameter(1, email).getResultList();
+      if (groups.size() == 0) return null;
+      else return groups.get(0);
    }
 }

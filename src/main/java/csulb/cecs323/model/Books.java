@@ -105,6 +105,6 @@ public class Books {
     @Override
     public String toString() {
         return "Book Title: " + getTitle() + " ISBN: " + getISBN() + " Year Published: " + getYear_published()
-                + " Publisher: " + getPublisher() + " Authoring Entity: " + getAuthoring_entities();
+                + "\nPublisher: " + getPublisher() + "\nAuthoring Entity: " + getAuthoring_entities();
     }
 }
