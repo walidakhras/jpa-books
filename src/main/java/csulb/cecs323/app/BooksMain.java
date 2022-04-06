@@ -476,7 +476,6 @@ public class BooksMain {
       boolean validate = true;
 
       while(validate) {
-         printPublishers();
          System.out.println("Enter the name of the publisher. (Max length 80 characters)");
          String name = in.nextLine();
 
