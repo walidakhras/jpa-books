@@ -17,10 +17,7 @@ import csulb.cecs323.model.*;
 import org.apache.derby.shared.common.error.DerbySQLIntegrityConstraintViolationException;
 import org.eclipse.persistence.exceptions.DatabaseException;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
+import javax.persistence.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -193,6 +190,10 @@ public class BooksMain {
     * @param in         The Scanner for user input       
     */
       public void updateBook(EntityTransaction tx, Scanner in) {
+         if (getAllBooks() == null) {
+            System.out.println("No books in the database");
+            return;
+         }
       String bookISBN;
       String authorEmail;
       printBooks();
@@ -238,7 +239,7 @@ public class BooksMain {
       for (Authoring_Entities entites: getAllAuthoringEntities()) {
          String email = entites.getEmail();
          String authType = entites.getAuthoringEntityType();
-         System.out.println("Authoring Entities Email: " + email + " Authoring Type: " + authType);
+         System.out.println("Authoring Entities Email: " + email + " Authoring Type: " + entites.getClass().getSimpleName());
       }
    }
 
@@ -248,6 +249,10 @@ public class BooksMain {
     */
    public void promptedPub(){
       Scanner in = new Scanner(System.in);
+      if (getAllPublishers() == null) {
+         System.out.println("There are no publishers in the database currently");
+         return;
+      }
       System.out.println("Please enter the name of the Publisher: ");
       String pubName = in.nextLine();
       while(getPublisher(pubName) == null){
@@ -257,11 +262,15 @@ public class BooksMain {
       System.out.println("\n" + getPublisher(pubName) + "\n\n");
    }
 
-   /**
+   /**w
     * Displays the Book of an inputted ISBN.      
     */
    public void promptedBook(){
       Scanner in = new Scanner(System.in);
+      if (getAllBooks() == null) {
+         System.out.println("There are no books in the database currently");
+         return;
+      }
       System.out.println("Please enter the ISBN of the Book: ");
       String bookISBN = in.nextLine();
       while(getBook(bookISBN) == null){
@@ -277,6 +286,10 @@ public class BooksMain {
     */
    public void promptedWritingClub(){
       Scanner in = new Scanner(System.in);
+      if (getAllGroups() == null) {
+         System.out.println("There are no groups in the database currently");
+         return;
+      }
       System.out.println("Please enter the email of the Writing Group: ");
       String groupEmail = in.nextLine();
       while(getGroup(groupEmail) == null){
@@ -312,6 +325,7 @@ public class BooksMain {
       }
       String title;
       Books book = null;
+      List<Books> books = null;
       switch(userRes) {
          case 1:
             System.out.println("Enter the book's ISBN");
@@ -330,11 +344,13 @@ public class BooksMain {
             System.out.println("Enter the publisher name");
             String name = in.nextLine();
 
-            book = entityManager.createNamedQuery("ReturnBookByPublisher", Books.class).
-                    setParameter(1, title).setParameter(2, name).getResultList().get(0);
-            if (book == null) {
+            books = entityManager.createNamedQuery("ReturnBookByPublisher", Books.class).
+                    setParameter(1, title).setParameter(2, name).getResultList();
+            if (books.size() == 0) {
                System.out.println("Book not found");
                return;
+            } else {
+               book = books.get(0);
             }
             break;
          case 3:
@@ -343,11 +359,13 @@ public class BooksMain {
 
             System.out.println("Enter the email of the authoring entity");
             String email = in.nextLine();
-            book = entityManager.createNamedQuery("ReturnBookByAuthoringEntity", Books.class)
-                    .setParameter(1, title).setParameter(2, email).getResultList().get(0);
-            if (book == null) {
+            books = entityManager.createNamedQuery("ReturnBookByAuthoringEntity", Books.class)
+                    .setParameter(1, title).setParameter(2, email).getResultList();
+            if (books.size() == 0) {
                System.out.println("Book not found");
                return;
+            } else {
+               book = books.get(0);
             }
             break;
       }
@@ -437,7 +455,7 @@ public class BooksMain {
             auth = getAuthoringEntity(authEmail);
 
             if (auth == null) {
-               System.out.println("No team exists with this information." + '\n' +
+               System.out.println("No entity exists with this information." + '\n' +
                        "Please try again." + '\n');
             } else authValidate = false;
          }

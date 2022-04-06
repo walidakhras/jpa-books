@@ -27,7 +27,7 @@ public abstract class Authoring_Entities {
     @Column(nullable = false, length = 31)
     private String name;
 
-    @Column(name = "Authoring_Entity_Type")
+    @Column(name = "Authoring_Entity_Type", insertable = false, updatable = false)
     private String type;
 
     public Authoring_Entities() {}
