@@ -174,10 +174,10 @@ public class BooksMain {
                jpaBooks.deleteBook(tx, in, resultTwo);
                break;
             case 4:
-               System.out.println("4!");
+               jpaBooks.updateBook(tx, in);
                break;
             case 5:
-               System.out.println("5!");
+               jpaBooks.printPrimaryKeys();
                break;
             case 6:
                System.out.println("Exiting");
@@ -186,8 +186,66 @@ public class BooksMain {
          } // End switch
       } // End loop
    } // End main
+   
+   /**
+    * Prompts the user for input on a books ISBN to update the Authoring Entitiy of that book.
+    * @param tx         The EntityTransaction for persisting objects into the database.
+    * @param in         The Scanner for user input       
+    */
+      public void updateBook(EntityTransaction tx, Scanner in) {
+      String bookISBN;
+      String authorEmail;
+      printBooks();
+      boolean validate = true;
+      while(validate) {
+         System.out.println("Enter book ISBN to update: ");
+         bookISBN = in.nextLine();
+         Books updatedBook = getBook(bookISBN);
+
+         printAuthoringEntities();
+         System.out.println("Enter email of authoring entity you wish to update book too: ");
+         authorEmail = in.nextLine();
+         Authoring_Entities authorUpdate = getAuthoringEntity(authorEmail);
+         try {
+            tx.begin();
+            updatedBook.setAuthoring_entities(authorUpdate);
+            tx.commit();
+            validate = false;
+         } catch (Exception e) {
+            System.out.println("Enter a valid ISBN and email.");
+         }
+      }
+   }
+
+   /**
+    * Prints and displays the primary keys existing in the database.     
+    */
+      public void printPrimaryKeys() {
+      System.out.println("Publisher primary keys: ");
+      for (Publishers pub: getAllPublishers()) {
+         String pubName = pub.getName();
+         System.out.println("Publisher Name: " + pubName);
+      }
+
+      System.out.println("Book Primary Keys: ");
+      for (Books book: getAllBooks()) {
+         String bookTitle = book.getTitle();
+         String bookKey = book.getISBN();
+         System.out.println("Book Title: " + bookTitle + " Book ISBN: " + bookKey);
+      }
+
+      System.out.println("Authoring Entities Primary Key: ");
+      for (Authoring_Entities entites: getAllAuthoringEntities()) {
+         String email = entites.getEmail();
+         String authType = entites.getAuthoringEntityType();
+         System.out.println("Authoring Entities Email: " + email + " Authoring Type: " + authType);
+      }
+   }
 
    //prompt methods
+   /**
+    * Displays the Publisher of an inputted publisher name.      
+    */
    public void promptedPub(){
       Scanner in = new Scanner(System.in);
       System.out.println("Please enter the name of the Publisher: ");
@@ -199,6 +257,9 @@ public class BooksMain {
       System.out.println("\n" + getPublisher(pubName) + "\n\n");
    }
 
+   /**
+    * Displays the Book of an inputted ISBN.      
+    */
    public void promptedBook(){
       Scanner in = new Scanner(System.in);
       System.out.println("Please enter the ISBN of the Book: ");
@@ -211,6 +272,9 @@ public class BooksMain {
 
    }
 
+   /**
+    * Displays the Writing Group of an inputted email.      
+    */
    public void promptedWritingClub(){
       Scanner in = new Scanner(System.in);
       System.out.println("Please enter the email of the Writing Group: ");
@@ -235,6 +299,12 @@ public class BooksMain {
    }
 
    // Functional but needs error validation
+   /**
+    * Takes user input for deleting an existing book in the database.
+    * @param tx         The EntityTransaction for persisting objects into the database.
+    * @param in         The Scanner for user input  
+    * @param userRes    The users choice for which way to search for a book to delete.
+    */
    public void deleteBook(EntityTransaction tx, Scanner in, int userRes) {
       if (getAllBooks() == null) {
          System.out.println("No books are currently in the database.");
@@ -286,7 +356,11 @@ public class BooksMain {
       tx.commit();
    }
 
-   // Properly validated
+   /**
+    * Takes user input to add an author to an existing Ad_Hoc_Team in the database.
+    * @param tx         The EntityTransaction for persisting objects into the database.
+    * @param in         The Scanner for user input       
+    */
    public void addAuthorToTeam(EntityTransaction tx, Scanner in) {
       if (getAllAdHocTeams() == null) {
          System.out.println("No ad hoc team currently exists." +
@@ -318,7 +392,11 @@ public class BooksMain {
       tx.commit();
    }
 
-   //Needs validation
+   /**
+    * Create and persist a new Books to the database.
+    * @param tx         The EntityTransaction for persisting objects into the database.
+    * @param in         The Scanner for user input       
+    */
    public void validateBook(EntityTransaction tx, Scanner in) {
       if (getAllAuthoringEntities() == null) {
          System.out.println("A book needs an existing authoring entity to be associated with." +
@@ -388,7 +466,11 @@ public class BooksMain {
       }
    }
 
-   // Properly validated
+   /**
+    * Create and persist a new Publishers to the database.
+    * @param tx         The EntityTransaction for persisting objects into the database.
+    * @param in         The Scanner for user input       
+    */
    public void validatePublisher(EntityTransaction tx, Scanner in) {
       Publishers pub;
       boolean validate = true;
@@ -412,7 +494,11 @@ public class BooksMain {
       }
    } // End validatePublisher
 
-   // Properly Validated
+   /**
+    * Create and persist a new Ad_Hoc_Team to the database.
+    * @param tx         The EntityTransaction for persisting objects into the database.
+    * @param in         The Scanner for user input       
+    */
    public void validateTeam(EntityTransaction tx, Scanner in) {
       Ad_Hoc_Team team;
       boolean validate = true;
@@ -436,7 +522,11 @@ public class BooksMain {
       } // End of while loop
    } // End of validateTeam
 
-   // Properly Validated
+   /**
+    * Create and persist a new Individual_Authors to the database.
+    * @param tx         The EntityTransaction for persisting objects into the database.
+    * @param in         The Scanner for user input       
+    */
    public Individual_Authors validateAuthor(EntityTransaction tx, Scanner in) {
       boolean validate = true;
       Individual_Authors author = null;
@@ -456,7 +546,12 @@ public class BooksMain {
       return author;
    } // End of validateAuthor
 
-   // Properly Validated
+   
+   /**
+    * Create and persist a new Writing_Groups to the database.
+    * @param tx         The EntityTransaction for persisting objects into the database.
+    * @param in         The Scanner for user input                 
+    */
    public void validateGroup(EntityTransaction tx, Scanner in) {
       boolean validate = true;
       Writing_Groups group;
@@ -483,6 +578,12 @@ public class BooksMain {
    } // End validateGroup
 
 
+   /**
+    * Creates a menu for the user to make a numerical selection with input validation.
+    * @param lower   The lower bound for the users options.
+    * @param upper   The upper bound for the users options.
+    * @param menu    The string depicting the menus options for the user.                 
+    */  
    public int printMenu(int lower, int upper, String menu) {
       Scanner in = new Scanner(System.in);
       int res = 0;
@@ -498,12 +599,18 @@ public class BooksMain {
       return res;
    }
 
+   /**
+    * Prints out all of the AdHocTeams in the database, if there are any.
+    */
    public void printTeams() {
       for (Ad_Hoc_Team team: getAllAdHocTeams()) {
          System.out.println(team);
       }
    }
 
+   /**
+    * Prints out all of the books in the database, if there are any.
+    */
    public void printBooks() {
       for (Books book: getAllBooks()) {
          System.out.println(book);
@@ -531,6 +638,9 @@ public class BooksMain {
       }
    } // End of createEntity member method
 
+   /**
+    * Prints out all of the publishers in the database, if there are any.
+    */
    public void printPublishers() {
       if (getAllPublishers() == null) {
          System.out.println("No publishers currently in the database.");
@@ -541,6 +651,9 @@ public class BooksMain {
       }
    }
 
+   /**
+    * Prints out all of the authoring entities in the database, if there are any.
+    */
    public void printAuthoringEntities() {
       if (getAllAuthoringEntities() == null) {
          System.out.println("No authoring entities currently in the database.");
@@ -552,13 +665,21 @@ public class BooksMain {
    }
 
    // Getters for named native queries
+   
+   /**
+    * Return the publisher of a given name of the publisher.
+    * @param name    The name of the publisher we are looking for in the database.
+    */
    public Publishers getPublisher (String name) {
       List<Publishers> pubs = this.entityManager.createNamedQuery("ReturnPublisher",
               Publishers.class).setParameter(1, name).getResultList();
       if (pubs.size() == 0) return null;
       else return pubs.get(0);
    }
-
+   
+   /**
+    * Returns all of the Publishers in the database.
+    */
    public List<Publishers> getAllPublishers() {
       List<Publishers> pubs = this.entityManager.createNamedQuery("ReturnAllPublishers",
               Publishers.class).getResultList();
@@ -566,20 +687,30 @@ public class BooksMain {
       else return pubs;
    }
 
+   /**
+    * Returns all of the Authoring Entities in the database.
+    */
    public List<Authoring_Entities> getAllAuthoringEntities() {
       List<Authoring_Entities> auths = this.entityManager.createNamedQuery("ReturnAllAuthoringEntities",
               Authoring_Entities.class).getResultList();
       if (auths.size() == 0) return null;
       else return auths;
    }
-
+   
+   /**
+    * Return the Authoring Entity of a given email.
+    * @param email      The email of the Authoring Entity we are looking for in the database.
+    */
    public Authoring_Entities getAuthoringEntity (String email) {
       List<Authoring_Entities> auths = this.entityManager.createNamedQuery("ReturnAuthoringEntity",
               Authoring_Entities.class).setParameter(1, email).getResultList();
       if (auths.size() == 0) return null;
       else return auths.get(0);
    }
-
+   
+   /**
+    * Returns all of the AdHocTeams in the database.
+    */
    public List<Ad_Hoc_Team> getAllAdHocTeams() {
       List<Ad_Hoc_Team> teams = this.entityManager.createNamedQuery("ReturnAllAdHocTeams",
               Ad_Hoc_Team.class).setParameter(1, "Ad_Hoc_Team").getResultList();
@@ -587,7 +718,11 @@ public class BooksMain {
       if (teams.size() == 0) return null;
       else return teams;
    }
-
+   
+   /**
+    * Return the AdHocTeam of a given email.
+    * @param email      The email of the AdHocTeam we are looking for in the database.
+    */
    public Ad_Hoc_Team getAdHocTeam (String email) {
       List<Ad_Hoc_Team> team = this.entityManager.createNamedQuery("ReturnAdHocTeam",
               Ad_Hoc_Team.class).setParameter(1, email).getResultList();
@@ -595,20 +730,29 @@ public class BooksMain {
       else return team.get(0);
    }
 
+   /**
+    * Returns all of the books in the database.
+    */
    public List<Books> getAllBooks() {
       List<Books> books = this.entityManager.createNamedQuery("ReturnAllBooks",
               Books.class).getResultList();
       if (books.size() == 0) return null;
       else return books;
    }
-
+   /**
+    * Return the book of a given ISBN.
+    * @param isbn       The ISBN number of the book we are looking for in the database.
+    */
    public Books getBook (String isbn) {
       List<Books> book = this.entityManager.createNamedQuery("ReturnBook",
               Books.class).setParameter(1, isbn).getResultList();
       if (book.size() == 0) return null;
       else return book.get(0);
    }
-
+   
+   /**
+    * Returns all the writing groups in the database.
+    */
    public List<Writing_Groups> getAllGroups() {
       List<Writing_Groups> groups = this.entityManager.createNamedQuery("ReturnAllWritingGroups",
               Writing_Groups.class).setParameter(1, "Writing_Groups").getResultList();
@@ -616,6 +760,10 @@ public class BooksMain {
       else return groups;
    }
 
+   /**
+    * Return the Writing Group of a given email.
+    * @param email      The email of the group we are looking for in the database.
+    */
    public Writing_Groups getGroup(String email){
       List<Writing_Groups> groups = this.entityManager.createNamedQuery("ReturnWritingGroup",
               Writing_Groups.class).setParameter(1, email).getResultList();
