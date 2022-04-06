@@ -36,6 +36,10 @@ public abstract class Authoring_Entities {
         this.email = email;
         this.name = name;
     }
+        
+    public String getAuthoringEntityType() {
+            return type;
+    }
 
     public String getEmail() {
         return email;
